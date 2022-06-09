@@ -1,7 +1,7 @@
 import './App.css';
 import app from './firebase.init';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, signInWithEmailAndPassword } from "firebase/auth";
 import { Button, Form } from 'react-bootstrap';
 import { useState } from 'react';
 // import Button from 'react-bootstrap/Button';
@@ -27,6 +27,14 @@ function App() {
   const handleRegistered = e =>{
     setRegistered(e.target.checked);
   }
+
+  const verifyEmail = () =>{
+    sendEmailVerification(auth.currentUser)
+    .then(() =>{
+      console.log('email sent');
+    })
+  }
+
   const handleFormSubmit = e => {
     const form = e.currentTarget;
     if (form.checkValidity() === false) {
@@ -54,14 +62,15 @@ function App() {
         const user = res.user;
         console.log(user)
         setEmail('');
-        setPassword('')
+        setPassword('');
+        verifyEmail()
       })
       .catch(err => {
         console.error(err);
         setError(err.message);
       })
     }
-    
+
     e.preventDefault();
   }
 
