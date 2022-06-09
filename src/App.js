@@ -1,7 +1,7 @@
 import './App.css';
 import app from './firebase.init';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { Button, Form } from 'react-bootstrap';
 import { useState } from 'react';
 // import Button from 'react-bootstrap/Button';
@@ -36,7 +36,20 @@ function App() {
       return;
     }
 
-    createUserWithEmailAndPassword(auth, email, password)
+    if (registered){
+      signInWithEmailAndPassword(auth, email, password)
+      .then(res =>{
+        const user = res.user;
+        console.log(user);
+      })
+      
+      .catch(err =>{
+        console.log(err);
+        setError(err.message)
+      })
+    }
+    else{
+      createUserWithEmailAndPassword(auth, email, password)
       .then(res => {
         const user = res.user;
         console.log(user)
@@ -45,8 +58,10 @@ function App() {
       })
       .catch(err => {
         console.error(err);
-        setError(err);
+        setError(err.message);
       })
+    }
+    
     e.preventDefault();
   }
 
@@ -76,7 +91,7 @@ function App() {
               Please provide a valid password.
             </Form.Control.Feedback>
           </Form.Group>
-          <p>{error}</p>
+          <p className='text-danger'>{error}</p>
           <Button variant="primary" type="submit">
             {registered ? 'Log In' : 'Register'}
           </Button>
