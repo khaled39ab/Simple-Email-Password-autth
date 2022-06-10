@@ -1,7 +1,7 @@
 import './App.css';
 import app from './firebase.init';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { Button, Form } from 'react-bootstrap';
 import { useState } from 'react';
 
@@ -15,7 +15,7 @@ function App() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('');
 
-  const handleName = e =>{
+  const handleName = e => {
     setName(e.target.value)
   }
 
@@ -27,22 +27,39 @@ function App() {
     setPassword(e.target.value);
   }
 
-  const handleRegistered = e =>{
+  const handleRegistered = e => {
     setRegistered(e.target.checked);
   }
 
-  const verifyEmail = () =>{
+  const verifyEmail = () => {
     sendEmailVerification(auth.currentUser)
-    .then(() =>{
-      console.log('email sent');
+      .then(() => {
+        console.log('email sent');
+      })
+  }
+
+  const setUsername = () =>{
+    updateProfile(auth.currentUser, {
+      displayName: name
+    })
+    .then (() =>{
+      console.log('updating name');
     })
   }
 
-  const handlePasswordReset = () =>{
+  const handlePasswordReset = e => {
+    const form = e.currentTarget;
+    if (form.checkValidity() === false) {
+      e.preventDefault();
+      e.stopPropagation();
+      setValidated(true);
+      return;
+    }
     sendPasswordResetEmail(auth, email)
-    .then(() => {
-      console.log('Password reset email sent');
-    })
+      .then(() => {
+        console.log('Password reset email sent');
+      })
+      .catch(err => setError(err.message))
   }
 
   const handleFormSubmit = e => {
@@ -54,31 +71,32 @@ function App() {
       return;
     }
 
-    if (registered){
+    if (registered) {
       signInWithEmailAndPassword(auth, email, password)
-      .then(res =>{
-        const user = res.user;
-        console.log(user);
-      })
-      
-      .catch(err =>{
-        console.log(err);
-        setError(err.message)
-      })
+        .then(res => {
+          const user = res.user;
+          console.log(user);
+        })
+
+        .catch(err => {
+          console.log(err);
+          setError(err.message)
+        })
     }
-    else{
+    else {
       createUserWithEmailAndPassword(auth, email, password)
-      .then(res => {
-        const user = res.user;
-        console.log(user)
-        setEmail('');
-        setPassword('');
-        verifyEmail()
-      })
-      .catch(err => {
-        console.error(err);
-        setError(err.message);
-      })
+        .then(res => {
+          const user = res.user;
+          console.log(user)
+          setEmail('');
+          setPassword('');
+          verifyEmail();
+          setUsername();
+        })
+        .catch(err => {
+          console.error(err);
+          setError(err.message);
+        })
     }
 
     e.preventDefault();
@@ -118,13 +136,12 @@ function App() {
             </Form.Control.Feedback>
           </Form.Group>
 
-          <p className='text-danger'>{error ? error : ''}</p>
+          <p className='text-danger'>{error}</p>
 
-         {registered ? <div>
-          <Button variant="primary" type="submit"> Log In </Button>
-          <button onClick={handlePasswordReset} type="button" className="btn btn-link">Forget Password?</button>
-         </div> : <Button variant="primary" type="submit"> Register </Button>}
-
+          {registered ? <div>
+            <Button variant="primary" type="submit"> Log In </Button>
+            <button onClick={handlePasswordReset} type="button" className="btn btn-link">Forget Password?</button>
+          </div> : <Button variant="primary" type="submit"> Register </Button>}
         </Form>
       </div>
     </div>
