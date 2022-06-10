@@ -10,9 +10,14 @@ const auth = getAuth(app);
 function App() {
   const [validated, setValidated] = useState(false);
   const [registered, setRegistered] = useState(false);
-  const [error, setError] = useState('');
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('')
+  const [error, setError] = useState('');
+
+  const handleName = e =>{
+    setName(e.target.value)
+  }
 
   const handleEmail = e => {
     setEmail(e.target.value);
@@ -87,6 +92,13 @@ function App() {
           <Form.Group className="mb-3" controlId="formBasicCheckbox">
             <Form.Check onChange={handleRegistered} type="checkbox" label="Already Registered" />
           </Form.Group>
+          {!registered && <Form.Group className="mb-3" controlId="formText">
+            <Form.Label>Your name</Form.Label>
+            <Form.Control onBlur={handleName} type="text" placeholder="Enter your name" required />
+            <Form.Control.Feedback type="invalid">
+              Please provide your name.
+            </Form.Control.Feedback>
+          </Form.Group>}
           <Form.Group className="mb-3" controlId="formBasicEmail">
             <Form.Label>Email address</Form.Label>
             <Form.Control onBlur={handleEmail} type="email" placeholder="Enter email" required />
@@ -105,11 +117,14 @@ function App() {
               Please provide a valid password.
             </Form.Control.Feedback>
           </Form.Group>
+
           <p className='text-danger'>{error ? error : ''}</p>
-          <Button variant="primary" type="submit">
-            {registered ? 'Log In' : 'Register'}
-          </Button>
+
+         {registered ? <div>
+          <Button variant="primary" type="submit"> Log In </Button>
           <button onClick={handlePasswordReset} type="button" className="btn btn-link">Forget Password?</button>
+         </div> : <Button variant="primary" type="submit"> Register </Button>}
+
         </Form>
       </div>
     </div>
