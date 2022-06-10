@@ -77,7 +77,6 @@ function App() {
           const user = res.user;
           console.log(user);
         })
-
         .catch(err => {
           console.log(err);
           setError(err.message)
@@ -98,7 +97,6 @@ function App() {
           setError(err.message);
         })
     }
-
     e.preventDefault();
   }
 
